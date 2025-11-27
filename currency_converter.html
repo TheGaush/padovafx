@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PadovaFX - Interactive Converter</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'padova-blue': '#003366', // Dark blue, inspired by UniPD colors
+                        'accent-gold': '#FFD700',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Apply the Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .loading-ring {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Hardcoded list of currencies, with EUR set as default for the user in Padova
+    const CURRENCIES = [
+        { code: 'EUR', name: 'Euro (EUR)' },
+        { code: 'INR', name: 'Indian Rupee (INR)' },
+        { code: 'USD', name: 'US Dollar (USD)' },
+        { code: 'GBP', name: 'British Pound (GBP)' },
+        { code: 'JPY', name: 'Japanese Yen (JPY)' },
+        { code: 'CAD', name: 'Canadian Dollar (CAD)' },
+        { code: 'AUD', name: 'Australian Dollar (AUD)' },
+    ];
+    
+    // API details
+    const API_BASE_URL = 'https://api.frankfurter.app/latest';
+
+    function CurrencyConverter() {
+        // State for user inputs and results
+        const [amount, setAmount] = useState(100);
+        const [fromCurrency, setFromCurrency] = useState('EUR');
+        const [toCurrency, setToCurrency] = useState('INR');
+        const [convertedAmount, setConvertedAmount] = useState(null);
+        const [loading, setLoading] = useState(false);
+        const [error, setError] = useState(null);
+        const [date, setDate] = useState('');
+
+        // Function to perform the currency conversion
+        const performConversion = async () => {
+            if (amount <= 0 || isNaN(amount)) {
+                setError("Please enter a valid amount greater than zero.");
+                setConvertedAmount(null);
+                return;
+            }
+            if (fromCurrency === toCurrency) {
+                setConvertedAmount(amount);
+                setError(null);
+                return;
+            }
+            
+            setLoading(true);
+            setError(null);
+
+            // Construct the API URL with parameters
+            const url = `${API_BASE_URL}?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle API-specific errors (e.g., 404, 500)
+                    throw new Error(data.message || `API error! Status: ${response.status}`);
+                }
+
+                if (data.rates && data.rates[toCurrency]) {
+                    setConvertedAmount(data.rates[toCurrency].toFixed(2));
+                    setDate(data.date);
+                } else {
+                    throw new Error("Conversion rate not found for the selected currencies.");
+                }
+            } catch (err) {
+                console.error("Conversion failed:", err);
+                setError(`Conversion failed: ${err.message}`);
+                setConvertedAmount(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Use effect hook to perform conversion immediately when component mounts
+        // and whenever key input changes (like a real app)
+        useEffect(() => {
+            const delayDebounceFn = setTimeout(() => {
+                performConversion();
+            }, 500); // 500ms delay after typing stops
+
+            return () => clearTimeout(delayDebounceFn); // Cleanup function
+        }, [amount, fromCurrency, toCurrency]);
+
+
+        // Function to swap currencies
+        const swapCurrencies = () => {
+            setFromCurrency(toCurrency);
+            setToCurrency(fromCurrency);
+        };
+
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="w-full max-w-lg bg-white shadow-2xl rounded-xl p-8 transition-all duration-300 transform hover:scale-[1.01]">
+                    <h1 className="text-3xl font-bold text-padova-blue text-center mb-6">
+                        PadovaFX 🇮🇹 | Currency Converter
+                    </h1>
+                    <p className="text-center text-gray-500 mb-8">
+                        Instant rates for international students and travelers.
+                    </p>
+
+                    <div className="space-y-6">
+                        {/* INPUT FIELD */}
+                        <label className="block">
+                            <span className="text-lg font-medium text-gray-700">Amount to Convert</span>
+                            <input
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="mt-1 block w-full rounded-lg border-2 border-padova-blue/30 p-3 text-2xl focus:border-accent-gold focus:ring-accent-gold transition duration-150"
+                                placeholder="Enter amount"
+                                min="1"
+                            />
+                        </label>
+
+                        {/* CURRENCY SELECTORS AND SWAP BUTTON */}
+                        <div className="flex items-center space-x-4">
+                            {/* FROM CURRENCY */}
+                            <select
+                                value={fromCurrency}
+                                onChange={(e) => setFromCurrency(e.target.value)}
+                                className="flex-1 rounded-lg border-2 border-padova-blue/30 p-3 text-lg bg-white appearance-none"
+                            >
+                                {CURRENCIES.map(c => (
+                                    <option key={c.code} value={c.code}>{c.name}</option>
+                                ))}
+                            </select>
+
+                            {/* SWAP BUTTON */}
+                            <button
+                                onClick={swapCurrencies}
+                                className="p-3 bg-padova-blue hover:bg-padova-blue/80 text-white rounded-full shadow-lg transition duration-150 transform hover:scale-105"
+                                title="Swap Currencies"
+                            >
+                                {/* SVG for Swap Icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </button>
+
+                            {/* TO CURRENCY */}
+                            <select
+                                value={toCurrency}
+                                onChange={(e) => setToCurrency(e.target.value)}
+                                className="flex-1 rounded-lg border-2 border-padova-blue/30 p-3 text-lg bg-white appearance-none"
+                            >
+                                {CURRENCIES.map(c => (
+                                    <option key={c.code} value={c.code}>{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* RESULT DISPLAY */}
+                        <div className="mt-8 pt-6 border-t-2 border-gray-100">
+                            <p className="text-md text-gray-500 font-medium">Converted Value:</p>
+                            
+                            {loading && (
+                                <div className="flex items-center space-x-3 mt-2">
+                                    <div className="loading-ring"></div>
+                                    <span className="text-padova-blue font-semibold">Calculating...</span>
+                                </div>
+                            )}
+
+                            {error && (
+                                <p className="text-red-600 font-semibold mt-2 break-words">⚠️ {error}</p>
+                            )}
+                            
+                            {convertedAmount && !loading && (
+                                <div className="mt-2">
+                                    <p className="text-4xl font-extrabold text-padova-blue">
+                                        {convertedAmount} <span className="text-accent-gold">{toCurrency}</span>
+                                    </p>
+                                    <p className="text-sm text-gray-400 mt-2">
+                                        Based on real-time rates (Source: ECB)
+                                    </p>
+                                    {date && (
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            Last Updated: {date}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Render the component to the root element
+    ReactDOM.render(<CurrencyConverter />, document.getElementById('root'));
+</script>
+
+</body>
+</html>
