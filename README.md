@@ -1,5 +1,49 @@
-💶 PadovaFX: CLI and Interactive Currency ConverterAuthor:Gaurav Joshi (BSc Information Engineering Student, University of Padova)Status:Fully Functional and DeployedFocus:API Integration, Front-End Component Architecture (React), and CLI Utility Development.This repository showcases two versions of a currency conversion application, demonstrating versatility in building both back-end focused CLI tools and modern, responsive front-end web apps.💻 Project 1: PadovaFX - Command Line Interface (CLI) ToolThis is a pure Node.js utility that runs directly in the terminal, demonstrating strong foundational scripting skills and argument handling.Key Skills DemonstratedCLI Development: Processing command-line arguments (process.argv) to handle user input.Asynchronous Programming: Handling network requests using fetch and async/await.External Library Use: Integrating the chalk library for professional, color-coded output.Robust Error Handling: Custom validation logic and graceful exit on failed inputs or network errors.How to Use (CLI)Ensure Node.js is installed.Navigate to the project directory in your terminal.Run the application using the desired conversion:node index.js [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
-ExampleCommandConvert 200 Euros to US Dollarsnode index.js 200 EUR USDConvert 10000 Indian Rupees to Eurosnode index.js 10000 INR EUR🌐 Project 2: PadovaFX - Interactive Web Converter (React / Tailwind CSS)This application transforms the CLI logic into a visually engaging, modern single-page application (SPA).Key Skills DemonstratedFront-End Frameworks: Use of React functional components and hooks (useState, useEffect) for application state and dynamic updating.Modern Styling: Application of Tailwind CSS for a professional, mobile-responsive, and accessible user interface, following modern design trends.Client-Side API Fetching: Making API calls directly from the browser's React component.Debouncing: Implemented a delay to prevent unnecessary, rapid API calls while the user is still typing, demonstrating awareness of performance optimization.How to Run (Web App)Simply open the file currency_converter.html in any modern web browser.🤝 Getting StartedClone the Repository:git clone [https://github.com/TheGaush/padovafx.git](https://github.com/TheGaush/padovafx.git)
-cd padovafx
-Install Dependencies:npm install
-(Needed only for the CLI tool's dependencies: chalk and node-fetch).
+# 💰 PadovaFX: Versatile Currency Converter (CLI & Web App)
+
+**Author:** Gaurav Joshi (BSc Information Engineering Student, University of Padova)
+**Status:** Fully Functional and Deployed
+**Technologies:** Node.js, React, Tailwind CSS, External Currency APIs
+
+---
+
+## ✨ Project Goal
+
+This repository showcases the development of a unified currency conversion system, demonstrating comprehensive versatility in both **back-end focused CLI tools** and modern, **responsive front-end web applications**.
+
+PadovaFX is designed to be highly efficient for scripting and aesthetically pleasing for interactive use.
+
+## 🚀 Architectural Overview
+
+The project is divided into two distinct components that share the same core functionality, highlighting different development focus areas:
+
+| Component | Technology Focus | Key Features | Deployment |
+| :--- | :--- | :--- | :--- |
+| **Project 1: CLI Tool** | Node.js, Error Handling | Professional, color-coded terminal output; quick, scripted conversions. | Run directly with Node.js. |
+| **Project 2: Web App** | React Hooks, Tailwind CSS | Single Page Application (SPA); mobile-responsive design; debounced API calls. | Simple HTML file deployment. |
+
+---
+
+## 🛠️ Project 1: PadovaFX - Command Line Interface (CLI)
+
+A robust Node.js utility demonstrating foundational scripting and professional terminal output using the **`chalk`** library.
+
+### Key Skills Demonstrated
+
+* **CLI Development:** Utilizing Node.js's `process.argv` for efficient command-line argument handling.
+* **Asynchronous Programming:** Mastering network requests using `fetch` and modern `async/await` patterns.
+* **Robust Error Handling:** Custom validation logic and graceful failure handling for invalid inputs or network outages.
+* **Professional Output:** Integrating the `chalk` library for clear, color-coded, and professional feedback.
+
+### ⚙️ Usage
+
+1.  Ensure you have Node.js and the project dependencies (`node-fetch`, `chalk`) installed.
+2.  Run the application with the desired conversion:
+
+```bash
+# Syntax: node index.js [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+
+# Example 1: Convert 200 Euros to US Dollars
+node index.js 200 EUR USD
+
+# Example 2: Convert 10000 Indian Rupees to Euros
+node index.js 10000 INR EUR
